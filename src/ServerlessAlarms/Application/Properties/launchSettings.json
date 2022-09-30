@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "ServerlessAlarm": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7272"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 34878,
+      "useSSL": false
+    }
+  }
+}
