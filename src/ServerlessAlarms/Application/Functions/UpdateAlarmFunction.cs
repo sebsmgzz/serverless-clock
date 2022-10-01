@@ -1,6 +1,7 @@
 namespace ServerlessAlarm.Application.Functions;
 
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Application.Models.Dtos;
@@ -12,6 +13,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using ServerlessAlarm.Domain.Aggregators.Alarms;
 
 public class UpdateAlarmFunction
 {
@@ -20,8 +22,10 @@ public class UpdateAlarmFunction
     private readonly ILogger<UpdateAlarmFunction> logger;
 
     public UpdateAlarmFunction(
+        IMediator mediator,
         ILogger<UpdateAlarmFunction> logger)
     {
+        this.mediator = mediator;
         this.logger = logger;
     }
 
@@ -49,9 +53,25 @@ public class UpdateAlarmFunction
                 AlarmName = dto.Name,
                 AlarmRecurrence = dto.Recurrence,
                 AlarmTimeout = dto.Timeout,
-                SnoozeInterval = dto.SnoozePolicy.Interval,
-                SnoozeRepeat = dto.SnoozePolicy.Repeat
+                SnoozeInterval = dto.SnoozePolicy?.Interval,
+                SnoozeRepeat = dto.SnoozePolicy?.Repeat
             });
+
+            // Restart durable function
+            var queryResult = await durableClient.ListInstancesAsync(
+                new OrchestrationStatusQueryCondition(), default);
+            var durable = queryResult.DurableOrchestrationState.FirstOrDefault(
+                predicate: durable => durable.InstanceId == id.ToString(),
+                defaultValue: null);
+            if(durable != null)
+            {
+                await durableClient.TerminateAsync(
+                    instanceId: id.ToString(),
+                    reason: "Updated");
+                await durableClient.RestartAsync(
+                    instanceId: id.ToString(),
+                    restartWithNewInstanceId: false);
+            }
 
             // Return nothing
             return new NoContentResult();

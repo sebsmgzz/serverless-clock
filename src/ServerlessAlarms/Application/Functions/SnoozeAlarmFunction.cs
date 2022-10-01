@@ -12,7 +12,7 @@ using System;
 using Application.Models.Dtos;
 using Application.Services.Commands;
 using MediatR;
-using ServerlessAlarm.Application.Models.ExternalEvents;
+using ServerlessAlarm.Application.Models.EventsData;
 
 public class SnoozeAlarmFunction
 {
@@ -45,8 +45,8 @@ public class SnoozeAlarmFunction
             // Call durable external event
             await durableClient.RaiseEventAsync(
                 instanceId: id.ToString(),
-                eventName: OnAlarmTriggeredEvent.AlarmSnoozed.Name,
-                eventData: OnAlarmTriggeredEvent.AlarmSnoozed);
+                eventName: nameof(ExternalEvent.Snooze),
+                eventData: ExternalEvent.Snooze);
 
             // Execute command
             await mediator.Send(new SnoozeAlarmCommand()

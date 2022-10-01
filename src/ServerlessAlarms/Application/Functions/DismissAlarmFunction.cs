@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
-using System.Text.Json;
-using Application.Models.Dtos;
 using MediatR;
 using Application.Services.Commands;
-using ServerlessAlarm.Application.Models.ExternalEvents;
+using ServerlessAlarm.Application.Models.EventsData;
 
 public class DismissAlarmFunction
 {
@@ -45,8 +43,8 @@ public class DismissAlarmFunction
             // Call durable external event
             await durableClient.RaiseEventAsync(
                 instanceId: id.ToString(),
-                eventName: OnAlarmTriggeredEvent.AlarmDismissed.Name,
-                eventData: OnAlarmTriggeredEvent.AlarmDismissed);
+                eventName: nameof(ExternalEvent.Dismissed),
+                eventData: ExternalEvent.Dismissed);
 
             // Execute command
             await mediator.Send(new DismissAlarmCommand()

@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ServerlessAlarm.Application.Models.ExternalEvents;
 
 public class DismissAlarmCommand : IRequest
 {

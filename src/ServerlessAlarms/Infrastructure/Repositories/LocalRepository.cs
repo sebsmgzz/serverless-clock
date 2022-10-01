@@ -62,8 +62,8 @@ public abstract class LocalRepository<TEntity, TId>
         var entityFilePath = Path.Join(repoDir, entityFileName);
 
         // Update entity
-        using var entityStream = File.OpenWrite(entityFilePath);
         var entityBytes = Serialize(entity);
+        using var entityStream = File.OpenWrite(entityFilePath);
         await entityStream.WriteAsync(entityBytes);
 
     }
@@ -83,10 +83,7 @@ public abstract class LocalRepository<TEntity, TId>
         }
 
         // Read entity
-        using var entityStream = File.OpenRead(entityFilePath);
-        using var memoryStream = new MemoryStream();
-        entityStream.CopyTo(memoryStream);
-        var entityBytes = memoryStream.ToArray();
+        var entityBytes = File.ReadAllBytes(entityFilePath);
         var entity = Deserialize(entityBytes);
         return await Task.FromResult(entity);
 

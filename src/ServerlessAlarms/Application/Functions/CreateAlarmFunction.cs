@@ -50,13 +50,13 @@ public class CreateAlarmFunction
             });
 
             // Call the alarm scheduler function
-            await durableClient.StartNewAsync(
+            var instanceId = await durableClient.StartNewAsync(
                 orchestratorFunctionName: nameof(ScheduleAlarmFunction),
-                instanceId: alarm.Id.ToString(),
                 input: new ScheduleAlarmInput()
                 {
                     AlarmId = alarmId,
                 });
+            logger.LogInformation($"Alarm {alarmId}: Scheduled with {instanceId}");
 
             // Return alarm's id
             return new OkObjectResult(new 

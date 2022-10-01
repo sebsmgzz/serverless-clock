@@ -27,14 +27,11 @@ public class UpdateAlarmCommandHandler : IRequestHandler<UpdateAlarmCommand>
 {
 
     private readonly IAlarmRepository alarmsRepository;
-    private readonly IDurableOrchestrationClient durableClient;
 
     public UpdateAlarmCommandHandler(
-        IAlarmRepository alarmsRepository,
-        IDurableOrchestrationClient durableClient)
+        IAlarmRepository alarmsRepository)
     {
         this.alarmsRepository = alarmsRepository;
-        this.durableClient = durableClient;
     }
 
     public async Task<Unit> Handle(
@@ -49,12 +46,8 @@ public class UpdateAlarmCommandHandler : IRequestHandler<UpdateAlarmCommand>
         alarm.Timeout = request.AlarmTimeout ?? alarm.Timeout;
         alarm.SnoozePolicy.Interval = request.SnoozeInterval ?? alarm.SnoozePolicy.Interval;
         alarm.SnoozePolicy.Repeat = request.SnoozeRepeat ?? alarm.SnoozePolicy.Repeat;
+        await alarmsRepository.UpdateAsync(alarm);
 
-        // Restart durable function
-        await durableClient.RestartAsync(
-            instanceId: alarm.Id.ToString(),
-            restartWithNewInstanceId: false);
-        
         // Return nothing
         return Unit.Value;
 

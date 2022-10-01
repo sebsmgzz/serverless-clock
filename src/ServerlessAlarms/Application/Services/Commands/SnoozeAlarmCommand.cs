@@ -1,6 +1,5 @@
 ﻿namespace ServerlessAlarm.Application.Services.Commands;
 
-using ServerlessAlarm.Application.Models.ExternalEvents;
 using ServerlessAlarm.Domain.Events;
 using MediatR;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
