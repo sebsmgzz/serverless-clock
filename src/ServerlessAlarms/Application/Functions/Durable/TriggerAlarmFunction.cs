@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Functions;
+﻿namespace ServerlessAlarm.Application.Functions.Durable;
 
 using System;
 using System.Collections.Generic;
@@ -53,14 +53,14 @@ public class TriggerAlarmFunction
             var externalEventTasks = new List<Task<ExternalEvent>>();
             if (alarm.SnoozePolicy != null && args.Snoozes < alarm.SnoozePolicy.Repeat)
             {
-                var snoozeEventTask = context.WaitForExternalEvent<ExternalEvent>(
+                var snoozeEventTask = context.WaitForExternalEvent(
                     name: nameof(ExternalEvent.Snooze),
                     defaultValue: ExternalEvent.Timeout,
                     timeout: alarm.Timeout,
                     cancelToken: cts.Token);
                 externalEventTasks.Add(snoozeEventTask);
             }
-            var dismissEventTask = context.WaitForExternalEvent<ExternalEvent>(
+            var dismissEventTask = context.WaitForExternalEvent(
                     name: nameof(ExternalEvent.Dismissed),
                     defaultValue: ExternalEvent.Timeout,
                     timeout: alarm.Timeout,
@@ -98,7 +98,7 @@ public class TriggerAlarmFunction
             }
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
         }

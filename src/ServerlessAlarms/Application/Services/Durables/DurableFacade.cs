@@ -2,7 +2,7 @@
 
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using ServerlessAlarm.Application.Functions;
+using ServerlessAlarm.Application.Functions.Durable;
 using ServerlessAlarm.Application.Models.EventsData;
 using ServerlessAlarm.Application.Models.Inputs;
 using ServerlessAlarm.Domain.Aggregators.Alarms;
@@ -55,6 +55,7 @@ public class DurableFacade : IDurableFacade
         {
             return false;
         }
+        logger.LogInformation($"Alarm {alarm.Id}: Restarted");
         await client.TerminateAsync(
             instanceId: alarm.Id.ToString(),
             reason: "Updated");

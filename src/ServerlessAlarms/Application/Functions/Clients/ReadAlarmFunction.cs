@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Functions;
+﻿namespace ServerlessAlarm.Application.Functions.Clients;
 
 using System;
 using System.Threading.Tasks;
@@ -32,7 +32,7 @@ public class ReadAlarmFunction
         [HttpTrigger(
             authLevel: AuthorizationLevel.Function,
             methods: new string[] { "get" },
-            Route = "alarms/{id}")] 
+            Route = "alarms/{id}")]
         HttpRequest request,
         Guid id)
     {
@@ -49,7 +49,7 @@ public class ReadAlarmFunction
             return new OkObjectResult(ReadAlarmDto.FromAlarm(alarm));
 
         }
-        catch(AlarmNotFoundException ex)
+        catch (AlarmNotFoundException ex)
         {
             return new NotFoundObjectResult(new
             {

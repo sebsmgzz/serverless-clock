@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions;
+namespace ServerlessAlarm.Application.Functions.Durable;
 
 using System;
 using System.Threading;

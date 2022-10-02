@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions;
+namespace ServerlessAlarm.Application.Functions.Clients;
 
 using System;
 using System.Text.Json;
@@ -47,8 +47,8 @@ public class CreateAlarmFunction
             });
 
             // Return alarm's id
-            return new OkObjectResult(new 
-            { 
+            return new OkObjectResult(new
+            {
                 id = alarmId
             });
 

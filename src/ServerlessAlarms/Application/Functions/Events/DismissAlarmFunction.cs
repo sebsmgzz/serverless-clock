@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions;
+﻿namespace ServerlessAlarm.Application.Functions.Events;
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,33 +7,34 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System.Text.Json;
 using System;
-using Application.Models.Dtos;
-using Application.Services.Commands;
 using MediatR;
+using Application.Services.Commands;
+using ServerlessAlarm.Application.Models.Dtos;
+using System.Text.Json;
 using ServerlessAlarm.Application.Services.Queries;
+using ServerlessAlarm.Application.Services.Durables;
 
-public class SnoozeAlarmFunction
+public class DismissAlarmFunction
 {
 
     private readonly IMediator mediator;
     private readonly ILogger logger;
 
-    public SnoozeAlarmFunction(
+    public DismissAlarmFunction(
         IMediator mediator,
-        ILogger<SnoozeAlarmFunction> logger)
+        ILogger<DismissAlarmFunction> logger)
     {
-        this.logger = logger;
         this.mediator = mediator;
+        this.logger = logger;
     }
 
-    [FunctionName(nameof(SnoozeAlarmFunction))]
+    [FunctionName(nameof(DismissAlarmFunction))]
     public async Task<IActionResult> Run(
         [HttpTrigger(
             authLevel: AuthorizationLevel.Function,
             methods: new string[] { "post" },
-            Route = "events/snoozes")]
+            Route = "events/dismiss")]
         HttpRequest request,
         [DurableClient]
         IDurableOrchestrationClient durableClient)
@@ -41,11 +42,11 @@ public class SnoozeAlarmFunction
         try
         {
 
-            // Deserialize input
-            var dto = JsonSerializer.Deserialize<SnoozeAlarmDto>(request.Body);
+            // Deserialize payload
+            var dto = JsonSerializer.Deserialize<DismissAlarmDto>(request.Body);
 
             // Execute command
-            await mediator.Send(new SnoozeAlarmCommand()
+            await mediator.Send(new DismissAlarmCommand()
             {
                 AlarmId = dto.AlarmId
             });

@@ -5,11 +5,11 @@ using ServerlessAlarm.Domain.Events;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class AlarmTriggeredEventHandler : INotificationHandler<AlarmTriggeredEvent>
+public class AlarmSnoozedEventHandler : INotificationHandler<AlarmSnoozedEvent>
 {
 
     public async Task Handle(
-        AlarmTriggeredEvent notification, 
+        AlarmSnoozedEvent notification,
         CancellationToken cancellationToken)
     {
         await Task.CompletedTask;
