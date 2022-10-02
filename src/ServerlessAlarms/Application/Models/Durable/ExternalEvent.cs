@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Models.EventsData;
+﻿namespace ServerlessAlarm.Application.Models.Durable;
 
 public enum ExternalEvent
 {

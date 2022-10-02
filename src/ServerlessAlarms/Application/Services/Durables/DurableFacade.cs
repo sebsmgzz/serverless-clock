@@ -3,8 +3,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using ServerlessAlarm.Application.Functions.Durable;
-using ServerlessAlarm.Application.Models.EventsData;
-using ServerlessAlarm.Application.Models.Inputs;
+using ServerlessAlarm.Application.Models.Durable;
 using ServerlessAlarm.Domain.Aggregators.Alarms;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +28,7 @@ public class DurableFacade : IDurableFacade
         await client.StartNewAsync(
             orchestratorFunctionName: nameof(OrchestrateAlarmFunction),
             instanceId: alarm.Id.ToString(),
-            input: new ScheduleAlarmInput()
+            input: new OrchestrateAlarmInput()
             {
                 AlarmId = alarm.Id,
             });
