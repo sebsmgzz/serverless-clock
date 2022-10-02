@@ -13,18 +13,23 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarm.Application.Exceptions;
+using ServerlessAlarm.Application.Services.Durable;
+using ServerlessAlarm.Application.Services.Queries;
 
 public class UpdateAlarmFunction
 {
 
+    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
     private readonly ILogger<UpdateAlarmFunction> logger;
 
     public UpdateAlarmFunction(
+        IDurableFacadeFactory durableFactory,
         IMediator mediator,
         ILogger<UpdateAlarmFunction> logger)
     {
+        this.durableFactory = durableFactory;
         this.mediator = mediator;
         this.logger = logger;
     }
@@ -43,8 +48,12 @@ public class UpdateAlarmFunction
         try
         {
 
-            // Deserialize payload
+            // Get alarm
             var dto = JsonSerializer.Deserialize<UpdateAlarmDto>(request.Body);
+            var alarm = await mediator.Send(new ReadAlarmCommand()
+            {
+                AlarmId = id
+            });
 
             // Execute command
             await mediator.Send(new UpdateAlarmCommand()
@@ -58,24 +67,19 @@ public class UpdateAlarmFunction
             });
 
             // Restart durable function
-            var queryResult = await durableClient.ListInstancesAsync(
-                new OrchestrationStatusQueryCondition(), default);
-            var durable = queryResult.DurableOrchestrationState.FirstOrDefault(
-                predicate: durable => durable.InstanceId == id.ToString(),
-                defaultValue: null);
-            if(durable != null)
-            {
-                await durableClient.TerminateAsync(
-                    instanceId: id.ToString(),
-                    reason: "Updated");
-                await durableClient.RestartAsync(
-                    instanceId: id.ToString(),
-                    restartWithNewInstanceId: false);
-            }
+            var durableFacade = durableFactory.GetFacade(durableClient);
+            await durableFacade.RestartAlarmAsync(alarm);
 
             // Return nothing
             return new NoContentResult();
 
+        }
+        catch (AlarmNotFoundException ex)
+        {
+            return new NotFoundObjectResult(new
+            {
+                message = ex.Message
+            });
         }
         catch (Exception ex)
         {

@@ -22,4 +22,13 @@ public class SnoozePolicyDto
         };
     }
 
+    public static SnoozePolicyDto FromSnoozePolicy(SnoozePolicy snoozePolicy)
+    {
+        return new SnoozePolicyDto()
+        {
+            Interval = snoozePolicy.Interval,
+            Repeat = snoozePolicy.Repeat
+        };
+    }
+
 }

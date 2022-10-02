@@ -46,6 +46,7 @@ public class TriggerAlarmFunction
             if (alarm == null)
             {
                 logger.LogCritical($"Alarm {args.AlarmId}: Scheduled but not found in the repository.");
+                return;
             }
 
             // Build list of awaitable external events

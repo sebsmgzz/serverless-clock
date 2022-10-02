@@ -13,17 +13,21 @@ using Application.Models.Dtos;
 using MediatR;
 using Application.Services.Commands;
 using ServerlessAlarm.Application.Models.Inputs;
+using ServerlessAlarm.Application.Services.Durable;
 
 public class CreateAlarmFunction
 {
 
+    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
-    private readonly ILogger<CreateAlarmFunction> logger;
+    private readonly ILogger logger;
 
     public CreateAlarmFunction(
+        IDurableFacadeFactory durableFactory,
         IMediator mediator,
         ILogger<CreateAlarmFunction> logger)
     {
+        this.durableFactory = durableFactory;
         this.mediator = mediator;
         this.logger = logger;
     }
@@ -50,13 +54,8 @@ public class CreateAlarmFunction
             });
 
             // Call the alarm scheduler function
-            var instanceId = await durableClient.StartNewAsync(
-                orchestratorFunctionName: nameof(ScheduleAlarmFunction),
-                input: new ScheduleAlarmInput()
-                {
-                    AlarmId = alarmId,
-                });
-            logger.LogInformation($"Alarm {alarmId}: Scheduled with {instanceId}");
+            var durableFacade = durableFactory.GetFacade(durableClient);
+            await durableFacade.ActivateAlarmAsync(alarm);
 
             // Return alarm's id
             return new OkObjectResult(new 

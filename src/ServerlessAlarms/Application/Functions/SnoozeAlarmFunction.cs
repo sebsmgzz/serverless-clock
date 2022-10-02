@@ -13,10 +13,13 @@ using Application.Models.Dtos;
 using Application.Services.Commands;
 using MediatR;
 using ServerlessAlarm.Application.Models.EventsData;
+using ServerlessAlarm.Application.Services.Durable;
+using ServerlessAlarm.Application.Services.Queries;
 
 public class SnoozeAlarmFunction
 {
 
+    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
     private readonly ILogger logger;
 
@@ -33,25 +36,29 @@ public class SnoozeAlarmFunction
         [HttpTrigger(
             authLevel: AuthorizationLevel.Function,
             methods: new string[] { "post" },
-            Route = "alarms/{id:guid}/snoozes")]
+            Route = "events/snoozes")]
         HttpRequest request,
-        Guid id,
         [DurableClient]
         IDurableOrchestrationClient durableClient)
     {
         try
         {
 
+            // Get alarm
+            var dto = JsonSerializer.Deserialize<SnoozeAlarmDto>(request.Body);
+            var alarm = await mediator.Send(new ReadAlarmCommand()
+            {
+                AlarmId = dto.AlarmId
+            });
+
             // Call durable external event
-            await durableClient.RaiseEventAsync(
-                instanceId: id.ToString(),
-                eventName: nameof(ExternalEvent.Snooze),
-                eventData: ExternalEvent.Snooze);
+            var durableFacade = durableFactory.GetFacade(durableClient);
+            await durableFacade.SnoozeAlarmAsync(alarm);
 
             // Execute command
             await mediator.Send(new SnoozeAlarmCommand()
             {
-                AlarmId = id
+                AlarmId = dto.AlarmId
             });
 
             // Return nothing

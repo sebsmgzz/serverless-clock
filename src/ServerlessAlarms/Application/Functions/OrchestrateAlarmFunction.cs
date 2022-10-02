@@ -12,7 +12,7 @@ using NCrontab;
 using MediatR;
 using ServerlessAlarm.Domain.Events;
 
-public class ScheduleAlarmFunction
+public class OrchestrateAlarmFunction
 {
 
     private readonly IAlarmRepository alarmsRepository;
@@ -20,10 +20,10 @@ public class ScheduleAlarmFunction
     private readonly ILogger logger;
     private readonly CancellationTokenSource cts;
 
-    public ScheduleAlarmFunction(
+    public OrchestrateAlarmFunction(
         IAlarmRepository alarmsRepository,
         IMediator mediator,
-        ILogger<ScheduleAlarmFunction> logger)
+        ILogger<OrchestrateAlarmFunction> logger)
     {
         this.alarmsRepository = alarmsRepository;
         this.mediator = mediator;
@@ -31,7 +31,7 @@ public class ScheduleAlarmFunction
         cts = new CancellationTokenSource();
     }
 
-    [FunctionName(nameof(ScheduleAlarmFunction))]
+    [FunctionName(nameof(OrchestrateAlarmFunction))]
     public async Task Run(
         [OrchestrationTrigger]
         IDurableOrchestrationContext context)

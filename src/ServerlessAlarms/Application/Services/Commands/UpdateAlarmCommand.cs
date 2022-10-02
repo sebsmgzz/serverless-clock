@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ServerlessAlarm.Application.Exceptions;
 
 public class UpdateAlarmCommand : IRequest
 {
@@ -39,8 +40,11 @@ public class UpdateAlarmCommandHandler : IRequestHandler<UpdateAlarmCommand>
         CancellationToken cancellationToken)
     {
 
+        // Get the alarm
+        var alarm = await alarmsRepository.FindByIdAsync(request.AlarmId) ??
+            throw new AlarmNotFoundException(request.AlarmId);
+
         // Update alarm
-        var alarm = await alarmsRepository.FindByIdAsync(request.AlarmId);
         alarm.Name = request.AlarmName ?? alarm.Name;
         alarm.Recurrence = request.AlarmRecurrence ?? alarm.Recurrence;
         alarm.Timeout = request.AlarmTimeout ?? alarm.Timeout;

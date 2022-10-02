@@ -30,6 +30,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\EventHandlers\" />
-    <Folder Include="Services\Queries\" />
   </ItemGroup>
 </Project>
