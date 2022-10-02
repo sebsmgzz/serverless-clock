@@ -12,6 +12,8 @@ using NCrontab;
 using MediatR;
 using ServerlessAlarm.Domain.Events;
 using System.Collections.Generic;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
+using System.Security.Claims;
 
 public class OrchestrateAlarmFunction
 {
@@ -49,63 +51,22 @@ public class OrchestrateAlarmFunction
             var nextOcurrence = recurrence.GetNextOccurrence(DateTime.Now);
             logger.LogInformation($"Alarm {alarm.Id}: Scheduled to trigger at {nextOcurrence}");
 
-            // Await for trigger alarm
+            // Await for alarm's trigger
             await context.CreateTimer(nextOcurrence, cts.Token);
             logger.LogInformation($"Alarm {alarm.Id}: Triggered");
-
-            // Build list of awaitable external events
-            var externalEventTasks = new List<Task<ExternalEvent>>();
-            if (alarm.SnoozePolicy != null && input.Snoozes < alarm.SnoozePolicy.Repeat)
-            {
-                var snoozeEventTask = context.WaitForExternalEvent(
-                    name: nameof(ExternalEvent.Snooze),
-                    defaultValue: ExternalEvent.Timeout,
-                    timeout: alarm.Timeout,
-                    cancelToken: cts.Token);
-                externalEventTasks.Add(snoozeEventTask);
-            }
-            var dismissEventTask = context.WaitForExternalEvent(
-                    name: nameof(ExternalEvent.Dismissed),
-                    defaultValue: ExternalEvent.Timeout,
-                    timeout: alarm.Timeout,
-                    cancelToken: cts.Token);
-            externalEventTasks.Add(dismissEventTask);
-
-            // Await for any external event (or timeout)
-            logger.LogInformation($"Alarm {alarm.Id}: Waiting for external events");
-            var achievedTask = await Task.WhenAny(externalEventTasks);
-            if (achievedTask.Result == ExternalEvent.Dismissed)
-            {
-                logger.LogInformation($"Alarm {input.AlarmId}: Dismissed");
-                await mediator.Publish(new AlarmDismissedEvent()
-                {
-                    AlarmId = alarm.Id
-                });
-            }
-            else if (achievedTask.Result == ExternalEvent.Snooze)
-            {
-                logger.LogInformation($"Alarm {input.AlarmId}: Snoozed");
-                input.Snoozes++;
-                await mediator.Publish(new AlarmSnoozedEvent()
-                {
-                    AlarmId = alarm.Id
-                });
-                context.ContinueAsNew(input, false);
-            }
-            else
-            {
-                logger.LogInformation($"Alarm {input.AlarmId}: Timedout");
-                await mediator.Publish(new AlarmTimedoutEvent()
-                {
-                    AlarmId = alarm.Id
-                });
-            }
-
-            // Execute domain event
             await mediator.Publish(new AlarmTriggeredEvent()
             {
                 AlarmId = alarm.Id
             });
+
+            // Await for any external event (or timeout)
+            logger.LogInformation($"Alarm {alarm.Id}: Waiting for external events");
+            var externalEventTasks = GetExternalEventsTasks(context, alarm, input.Snoozes);
+            var achievedTask = await Task.WhenAny(externalEventTasks);
+
+            // Handle external event
+            await HandleExternalEventAsync(
+                context, achievedTask.Result, alarm, input);
 
             // Durable loop
             context.ContinueAsNew(input, false);
@@ -114,6 +75,58 @@ public class OrchestrateAlarmFunction
         catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
+        }
+    }
+
+    private IEnumerable<Task<ExternalEvent>> GetExternalEventsTasks(
+        IDurableOrchestrationContext context, 
+        Alarm alarm, 
+        int snoozesPerformed = 0)
+    {
+        yield return context.WaitForExternalEvent(
+            name: nameof(ExternalEvent.Dismissed),
+            defaultValue: ExternalEvent.Timeout,
+            timeout: alarm.Timeout,
+            cancelToken: cts.Token);
+        if (alarm.SnoozePolicy != null && snoozesPerformed < alarm.SnoozePolicy.Repeat)
+        {
+            yield return context.WaitForExternalEvent(
+                name: nameof(ExternalEvent.Snooze),
+                defaultValue: ExternalEvent.Timeout,
+                timeout: alarm.Timeout,
+                cancelToken: cts.Token);
+        }
+    }
+
+    public async Task HandleExternalEventAsync(
+        IDurableOrchestrationContext context, 
+        ExternalEvent externalEvent, 
+        Alarm alarm,
+        OrchestrateAlarmInput input)
+    {
+        logger.LogInformation($"Alarm {alarm.Id}: {externalEvent}");
+        if (externalEvent == ExternalEvent.Dismissed)
+        {
+            await mediator.Publish(new AlarmDismissedEvent()
+            {
+                AlarmId = alarm.Id
+            });
+        }
+        else if (externalEvent == ExternalEvent.Snooze)
+        {
+            // TODO: Increase snoozes
+            await mediator.Publish(new AlarmSnoozedEvent()
+            {
+                AlarmId = alarm.Id
+            });
+            context.ContinueAsNew(input, false);
+        }
+        else
+        {
+            await mediator.Publish(new AlarmTimedoutEvent()
+            {
+                AlarmId = alarm.Id
+            });
         }
     }
 
