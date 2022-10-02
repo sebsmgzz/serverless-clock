@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Services.Durable;
+﻿namespace ServerlessAlarm.Application.Services.Durables;
 
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 public class DurableFacade : IDurableFacade
 {
 
-    private readonly IDurableOrchestrationClient client;
+    private readonly IDurableClient client;
     private readonly ILogger logger;
 
     public DurableFacade(
-        IDurableOrchestrationClient client,
+        IDurableClient client,
         ILogger<IDurableFacade> logger)
     {
         this.client = client;

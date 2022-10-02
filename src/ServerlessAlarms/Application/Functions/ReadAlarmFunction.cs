@@ -34,8 +34,7 @@ public class ReadAlarmFunction
             methods: new string[] { "get" },
             Route = "alarms/{id}")] 
         HttpRequest request,
-        Guid id,
-        [DurableClient] IDurableOrchestrationClient durableClient)
+        Guid id)
     {
         try
         {

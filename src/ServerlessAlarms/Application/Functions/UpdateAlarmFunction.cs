@@ -1,7 +1,6 @@
 namespace ServerlessAlarm.Application.Functions;
 
 using System;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Application.Models.Dtos;
@@ -10,26 +9,20 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using ServerlessAlarm.Application.Exceptions;
-using ServerlessAlarm.Application.Services.Durable;
-using ServerlessAlarm.Application.Services.Queries;
 
 public class UpdateAlarmFunction
 {
 
-    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
     private readonly ILogger<UpdateAlarmFunction> logger;
 
     public UpdateAlarmFunction(
-        IDurableFacadeFactory durableFactory,
         IMediator mediator,
         ILogger<UpdateAlarmFunction> logger)
     {
-        this.durableFactory = durableFactory;
         this.mediator = mediator;
         this.logger = logger;
     }
@@ -41,19 +34,13 @@ public class UpdateAlarmFunction
             methods: new string[] { "put" },
             Route = "alarms/{id:guid}")]
         HttpRequest request,
-        Guid id,
-        [DurableClient]
-        IDurableOrchestrationClient durableClient)
+        Guid id)
     {
         try
         {
 
-            // Get alarm
+            // Deserialize input body
             var dto = JsonSerializer.Deserialize<UpdateAlarmDto>(request.Body);
-            var alarm = await mediator.Send(new ReadAlarmCommand()
-            {
-                AlarmId = id
-            });
 
             // Execute command
             await mediator.Send(new UpdateAlarmCommand()
@@ -65,10 +52,6 @@ public class UpdateAlarmFunction
                 SnoozeInterval = dto.SnoozePolicy?.Interval,
                 SnoozeRepeat = dto.SnoozePolicy?.Repeat
             });
-
-            // Restart durable function
-            var durableFacade = durableFactory.GetFacade(durableClient);
-            await durableFacade.RestartAlarmAsync(alarm);
 
             // Return nothing
             return new NoContentResult();

@@ -1,13 +1,11 @@
 ﻿namespace ServerlessAlarm.Application.Services.Commands;
 
-using ServerlessAlarm.Application.Functions;
 using Domain.Aggregators.Alarms;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System.Threading;
 using System.Threading.Tasks;
-using ServerlessAlarm.Application.Models.Inputs;
 using System;
+using ServerlessAlarm.Application.Services.Durables;
 
 public class CreateAlarmCommand : IRequest<Guid>
 {
@@ -19,6 +17,7 @@ public class CreateAlarmCommandHandler : IRequestHandler<CreateAlarmCommand, Gui
 {
 
     private readonly IAlarmRepository alarmsRepository;
+    private readonly IDurableFacade durableFacade;
 
     public CreateAlarmCommandHandler(
         IAlarmRepository alarmsRepository)
@@ -31,9 +30,12 @@ public class CreateAlarmCommandHandler : IRequestHandler<CreateAlarmCommand, Gui
         CancellationToken cancellationToken)
     {
 
-        // Insert alarm
+        // Insert the alarm
         await alarmsRepository.AddAsync(request.Alarm);
-        
+
+        // Activate the durable orchestration
+        await durableFacade.ActivateAlarmAsync(request.Alarm);
+
         // Return the alarm
         return request.Alarm.Id;
 

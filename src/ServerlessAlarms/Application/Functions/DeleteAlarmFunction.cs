@@ -10,22 +10,19 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using Application.Services.Commands;
-using ServerlessAlarm.Application.Services.Durable;
+using ServerlessAlarm.Application.Services.Durables;
 using ServerlessAlarm.Application.Services.Queries;
 
 public class DeleteAlarmFunction
 {
 
-    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
     private readonly ILogger<DeleteAlarmFunction> logger;
 
     public DeleteAlarmFunction(
-        IDurableFacadeFactory durableFactory,
         IMediator mediator,
         ILogger<DeleteAlarmFunction> logger)
     {
-        this.durableFactory = durableFactory;
         this.mediator = mediator;
         this.logger = logger;
     }
@@ -37,24 +34,12 @@ public class DeleteAlarmFunction
             methods: new string[] { "delete" },
             Route = "alarms/{id:guid}")]
         HttpRequest request,
-        Guid id,
-        [DurableClient]
-        IDurableOrchestrationClient durableClient)
+        Guid id)
     {
         try
         {
 
-            // Get alarm
-            var alarm = await mediator.Send(new ReadAlarmCommand()
-            {
-                AlarmId = id
-            });
-
-            // Terminate durable function
-            var durableFacade = durableFactory.GetFacade(durableClient);
-            await durableFacade.DeactivateAlarmAsync(alarm);
-
-            // Delete alarm
+            // Execute command
             await mediator.Send(new DeleteAlarmCommand()
             {
                 AlarmId = id

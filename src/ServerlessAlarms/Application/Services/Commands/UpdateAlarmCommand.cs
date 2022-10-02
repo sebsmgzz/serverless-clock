@@ -2,11 +2,11 @@
 
 using ServerlessAlarm.Domain.Aggregators.Alarms;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ServerlessAlarm.Application.Exceptions;
+using ServerlessAlarm.Application.Services.Durables;
 
 public class UpdateAlarmCommand : IRequest
 {
@@ -28,11 +28,14 @@ public class UpdateAlarmCommandHandler : IRequestHandler<UpdateAlarmCommand>
 {
 
     private readonly IAlarmRepository alarmsRepository;
+    private readonly IDurableFacade durableFacade;
 
     public UpdateAlarmCommandHandler(
-        IAlarmRepository alarmsRepository)
+        IAlarmRepository alarmsRepository,
+        IDurableFacade durableFacade)
     {
         this.alarmsRepository = alarmsRepository;
+        this.durableFacade = durableFacade;
     }
 
     public async Task<Unit> Handle(
@@ -51,6 +54,9 @@ public class UpdateAlarmCommandHandler : IRequestHandler<UpdateAlarmCommand>
         alarm.SnoozePolicy.Interval = request.SnoozeInterval ?? alarm.SnoozePolicy.Interval;
         alarm.SnoozePolicy.Repeat = request.SnoozeRepeat ?? alarm.SnoozePolicy.Repeat;
         await alarmsRepository.UpdateAsync(alarm);
+
+        // Restart durable function
+        await durableFacade.RestartAlarmAsync(alarm);
 
         // Return nothing
         return Unit.Value;

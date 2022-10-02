@@ -9,7 +9,7 @@ using Domain.Aggregators.Alarms;
 using Infrastructure.Repositories;
 using MediatR;
 using System.Reflection;
-using ServerlessAlarm.Application.Services.Durable;
+using ServerlessAlarm.Application.Services.Durables;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +30,6 @@ public class Startup : FunctionsStartup
                 TaskHub = "ServerlessAlarmsHub"
             });
         });
-        builder.Services.AddScoped<IDurableFacadeFactory, DurableFacadeFactory>();
         builder.Services.AddScoped<IDurableFacade, DurableFacade>();
         builder.Services.AddScoped<IAlarmRepository, AlarmRepository>();
         builder.Services.AddMediatR(Assembly.GetExecutingAssembly());

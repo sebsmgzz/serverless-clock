@@ -1,11 +1,12 @@
 ﻿namespace ServerlessAlarm.Application.Services.Commands;
 
-using ServerlessAlarm.Domain.Events;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ServerlessAlarm.Application.Services.Durables;
+using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarm.Application.Exceptions;
 
 public class DismissAlarmCommand : IRequest
 {
@@ -16,11 +17,17 @@ public class DismissAlarmCommand : IRequest
 public class DismissAlarmCommandHandler : IRequestHandler<DismissAlarmCommand>
 {
 
+    private readonly IAlarmRepository alarmRepository;
+    private readonly IDurableFacade durableFacade;
     private readonly IMediator mediator;
 
     public DismissAlarmCommandHandler(
+        IAlarmRepository alarmRepository,
+        IDurableFacade durableFacade,
         IMediator mediator)
     {
+        this.alarmRepository = alarmRepository;
+        this.durableFacade = durableFacade;
         this.mediator = mediator;
     }
 
@@ -29,13 +36,12 @@ public class DismissAlarmCommandHandler : IRequestHandler<DismissAlarmCommand>
         CancellationToken cancellationToken)
     {
 
-        // Notify domain event
-        await mediator.Publish(
-            notification: new AlarmDismissedEvent()
-            {
-                AlarmId = request.AlarmId
-            },
-            cancellationToken: cancellationToken);
+        // Get alarm
+        var alarm = await alarmRepository.FindByIdAsync(request.AlarmId) ??
+            throw new AlarmNotFoundException(request.AlarmId);
+
+        // Raise the dismiss alarm durable external event
+        await durableFacade.DismissAlarmAsync(alarm);
 
         // Return nothing
         return Unit.Value;

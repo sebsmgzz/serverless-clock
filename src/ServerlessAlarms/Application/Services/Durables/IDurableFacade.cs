@@ -1,4 +1,5 @@
-﻿namespace ServerlessAlarm.Application.Services.Durable;
+﻿namespace ServerlessAlarm.Application.Services.Durables;
+
 using ServerlessAlarm.Domain.Aggregators.Alarms;
 using System.Threading.Tasks;
 

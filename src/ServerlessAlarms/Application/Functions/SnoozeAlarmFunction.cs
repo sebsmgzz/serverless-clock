@@ -12,14 +12,11 @@ using System;
 using Application.Models.Dtos;
 using Application.Services.Commands;
 using MediatR;
-using ServerlessAlarm.Application.Models.EventsData;
-using ServerlessAlarm.Application.Services.Durable;
 using ServerlessAlarm.Application.Services.Queries;
 
 public class SnoozeAlarmFunction
 {
 
-    private readonly IDurableFacadeFactory durableFactory;
     private readonly IMediator mediator;
     private readonly ILogger logger;
 
@@ -44,16 +41,8 @@ public class SnoozeAlarmFunction
         try
         {
 
-            // Get alarm
+            // Deserialize input
             var dto = JsonSerializer.Deserialize<SnoozeAlarmDto>(request.Body);
-            var alarm = await mediator.Send(new ReadAlarmCommand()
-            {
-                AlarmId = dto.AlarmId
-            });
-
-            // Call durable external event
-            var durableFacade = durableFactory.GetFacade(durableClient);
-            await durableFacade.SnoozeAlarmAsync(alarm);
 
             // Execute command
             await mediator.Send(new SnoozeAlarmCommand()

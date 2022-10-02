@@ -2,7 +2,7 @@
 
 using Domain.Aggregators.Alarms;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using ServerlessAlarm.Application.Services.Durables;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,11 +16,14 @@ public class DeleteAlarmCommand : IRequest
 public class DeleteAlarmCommandHandler : IRequestHandler<DeleteAlarmCommand>
 {
 
+    private readonly IDurableFacade durableFacade;
     private readonly IAlarmRepository alarmsRepository;
 
     public DeleteAlarmCommandHandler(
+        IDurableFacade durableFacade,
         IAlarmRepository alarmsRepository)
     {
+        this.durableFacade = durableFacade;
         this.alarmsRepository = alarmsRepository;
     }
 
@@ -32,6 +35,9 @@ public class DeleteAlarmCommandHandler : IRequestHandler<DeleteAlarmCommand>
         // Delete the alarm
         var alarm = await alarmsRepository.FindByIdAsync(request.AlarmId);
         await alarmsRepository.RemoveAsync(alarm);
+
+        // Deactivate the durable orchestration
+        await durableFacade.DeactivateAlarmAsync(alarm);
 
         // Return nothing
         return Unit.Value;

@@ -1,11 +1,12 @@
 ﻿namespace ServerlessAlarm.Application.Services.Commands;
 
-using ServerlessAlarm.Domain.Events;
 using MediatR;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarm.Application.Services.Durables;
+using ServerlessAlarm.Application.Exceptions;
 
 public class SnoozeAlarmCommand : IRequest
 {
@@ -16,12 +17,15 @@ public class SnoozeAlarmCommand : IRequest
 public class ScheduleAlarmCommandHandler : IRequestHandler<SnoozeAlarmCommand>
 {
 
-    private readonly IMediator mediator;
+    private readonly IAlarmRepository alarmRepository;
+    private readonly IDurableFacade durableFacade;
 
     public ScheduleAlarmCommandHandler(
-        IMediator mediator)
+        IAlarmRepository alarmRepository,
+        IDurableFacade durableFacade)
     {
-        this.mediator = mediator;
+        this.alarmRepository = alarmRepository;
+        this.durableFacade = durableFacade;
     }
 
     public async Task<Unit> Handle(
@@ -29,13 +33,12 @@ public class ScheduleAlarmCommandHandler : IRequestHandler<SnoozeAlarmCommand>
         CancellationToken cancellationToken)
     {
 
-        // Notify domain event
-        await mediator.Publish(
-            notification: new AlarmSnoozedEvent()
-            {
-                AlarmId = request.AlarmId
-            },
-            cancellationToken: cancellationToken);
+        // Get alarm
+        var alarm = await alarmRepository.FindByIdAsync(request.AlarmId) ??
+            throw new AlarmNotFoundException(request.AlarmId);
+
+        // Raise the snooze alarm durable external event
+        await durableFacade.SnoozeAlarmAsync(alarm);
 
         // Return nothing
         return Unit.Value;
