@@ -1,0 +1,223 @@
+{
+	"info": {
+		"_postman_id": "edfbcd0f-f63a-4b1d-8d28-136aa1e93031",
+		"name": "ServerlessClock",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ServerlessAlarms",
+			"item": [
+				{
+					"name": "Debug",
+					"item": [
+						{
+							"name": "Get all durable functions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/durables",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"durables"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Create alarm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\",\r\n    \"recurrence\": \"*/20 * * * *\",\r\n    \"timeout\": \"00:05:00\",\r\n    \"snoozePolicy\": {\r\n        \"interval\": \"00:03:00\",\r\n        \"repeat\": 2\r\n    }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alarms",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alarms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read alarm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alarms/ac0eef8e-341e-4974-be26-8d852ba1303e",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alarms",
+								"ac0eef8e-341e-4974-be26-8d852ba1303e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update alarm",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"recurrence\": \"*/5 * * * *\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alarms/8e95cd6d-6eb1-4d96-a127-fe4c57fba4c2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alarms",
+								"8e95cd6d-6eb1-4d96-a127-fe4c57fba4c2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete alarm",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7272/api/alarms/be5edc99-0207-49f9-8dcf-7a243b4a109d",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7272",
+							"path": [
+								"api",
+								"alarms",
+								"be5edc99-0207-49f9-8dcf-7a243b4a109d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Raise dismiss event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alarmId\": \"0cc9d0f3-e34f-4167-b90c-1fd98f4900e0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/dismisses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"dismisses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Raise snooze event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alarmId\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/snoozes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"snoozes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:7272"
+		}
+	]
+}
