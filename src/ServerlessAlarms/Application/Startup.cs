@@ -26,8 +26,7 @@ public class Startup : FunctionsStartup
             var factory = provider.GetRequiredService<IDurableClientFactory>();
             return factory.CreateClient(new DurableClientOptions
             {
-                ConnectionName = "Storage",
-                TaskHub = "ServerlessAlarmsHub"
+                TaskHub = "testhubname"
             });
         });
         builder.Services.AddScoped<IDurableFacade, DurableFacade>();

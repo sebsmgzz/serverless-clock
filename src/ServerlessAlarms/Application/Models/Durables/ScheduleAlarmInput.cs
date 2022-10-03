@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Models.Durable;
+﻿namespace ServerlessAlarm.Application.Models.Durables;
 
 using System;
 

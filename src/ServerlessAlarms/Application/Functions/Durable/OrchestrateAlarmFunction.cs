@@ -7,13 +7,13 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Domain.Aggregators.Alarms;
-using Application.Models.Durable;
+using Application.Models.Durables;
 using NCrontab;
 using MediatR;
 using ServerlessAlarm.Domain.Events;
 using System.Collections.Generic;
-using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 using System.Security.Claims;
+using ServerlessAlarm.Application.Exceptions;
 
 public class OrchestrateAlarmFunction
 {
@@ -44,15 +44,23 @@ public class OrchestrateAlarmFunction
 
             // Get input
             var input = context.GetInput<OrchestrateAlarmInput>();
-            var alarm = await alarmsRepository.FindByIdAsync(input.AlarmId);
-
-            // Schedule the alarm
+            var alarm = await alarmsRepository.FindByIdAsync(input.AlarmId) ??
+                throw new AlarmNotFoundException(input.AlarmId);
+            
+            // Ensure alarm should be scheduled
+            if(!alarm.IsEnabled)
+            {
+                logger.LogWarning($"Alarm {alarm.Id}: Disabled, finishing orchestration");
+                return;
+            }
+            
+            // Calculate next trigger
             var recurrence = CrontabSchedule.Parse(alarm.Recurrence);
-            var nextOcurrence = recurrence.GetNextOccurrence(DateTime.Now);
-            logger.LogInformation($"Alarm {alarm.Id}: Scheduled to trigger at {nextOcurrence}");
+            var nextTrigger = recurrence.GetNextOccurrence(DateTime.UtcNow);
+            logger.LogInformation($"Alarm {alarm.Id}: Scheduled to trigger at {nextTrigger}");
 
             // Await for alarm's trigger
-            await context.CreateTimer(nextOcurrence, cts.Token);
+            await context.CreateTimer(nextTrigger, cts.Token);
             logger.LogInformation($"Alarm {alarm.Id}: Triggered");
             await mediator.Publish(new AlarmTriggeredEvent()
             {
@@ -65,6 +73,7 @@ public class OrchestrateAlarmFunction
             var achievedTask = await Task.WhenAny(externalEventTasks);
 
             // Handle external event
+            logger.LogInformation($"Alarm {alarm.Id}: {achievedTask.Result}");
             await HandleExternalEventAsync(
                 context, achievedTask.Result, alarm, input);
 
@@ -100,13 +109,14 @@ public class OrchestrateAlarmFunction
 
     public async Task HandleExternalEventAsync(
         IDurableOrchestrationContext context, 
-        ExternalEvent externalEvent, 
+        ExternalEvent externalEvent,
         Alarm alarm,
         OrchestrateAlarmInput input)
     {
-        logger.LogInformation($"Alarm {alarm.Id}: {externalEvent}");
+        var durableId = new EntityId(nameof(ISnoozing), alarm.Id.ToString());
         if (externalEvent == ExternalEvent.Dismissed)
         {
+            await context.CallEntityAsync<ISnoozing>(durableId, "Restart");
             await mediator.Publish(new AlarmDismissedEvent()
             {
                 AlarmId = alarm.Id
@@ -114,7 +124,7 @@ public class OrchestrateAlarmFunction
         }
         else if (externalEvent == ExternalEvent.Snooze)
         {
-            // TODO: Increase snoozes
+            await context.CallEntityAsync<ISnoozing>(durableId, "Snooze");
             await mediator.Publish(new AlarmSnoozedEvent()
             {
                 AlarmId = alarm.Id
@@ -123,6 +133,7 @@ public class OrchestrateAlarmFunction
         }
         else
         {
+            await context.CallEntityAsync<ISnoozing>(durableId, "Restart");
             await mediator.Publish(new AlarmTimedoutEvent()
             {
                 AlarmId = alarm.Id

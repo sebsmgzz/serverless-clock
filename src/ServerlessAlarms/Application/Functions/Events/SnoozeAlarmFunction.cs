@@ -12,7 +12,6 @@ using System;
 using Application.Models.Dtos;
 using Application.Services.Commands;
 using MediatR;
-using ServerlessAlarm.Application.Services.Queries;
 
 public class SnoozeAlarmFunction
 {
@@ -33,7 +32,7 @@ public class SnoozeAlarmFunction
         [HttpTrigger(
             authLevel: AuthorizationLevel.Function,
             methods: new string[] { "post" },
-            Route = "events/snoozes")]
+            Route = "events/snooze")]
         HttpRequest request,
         [DurableClient]
         IDurableOrchestrationClient durableClient)

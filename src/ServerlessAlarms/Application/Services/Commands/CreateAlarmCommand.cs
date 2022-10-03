@@ -16,12 +16,14 @@ public class CreateAlarmCommand : IRequest<Guid>
 public class CreateAlarmCommandHandler : IRequestHandler<CreateAlarmCommand, Guid>
 {
 
-    private readonly IAlarmRepository alarmsRepository;
     private readonly IDurableFacade durableFacade;
+    private readonly IAlarmRepository alarmsRepository;
 
     public CreateAlarmCommandHandler(
+        IDurableFacade durableFacade,
         IAlarmRepository alarmsRepository)
     {
+        this.durableFacade = durableFacade;
         this.alarmsRepository = alarmsRepository;
     }
 

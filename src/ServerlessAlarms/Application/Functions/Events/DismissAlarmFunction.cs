@@ -12,8 +12,6 @@ using MediatR;
 using Application.Services.Commands;
 using ServerlessAlarm.Application.Models.Dtos;
 using System.Text.Json;
-using ServerlessAlarm.Application.Services.Queries;
-using ServerlessAlarm.Application.Services.Durables;
 
 public class DismissAlarmFunction
 {

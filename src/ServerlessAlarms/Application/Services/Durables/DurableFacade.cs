@@ -3,7 +3,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using ServerlessAlarm.Application.Functions.Durable;
-using ServerlessAlarm.Application.Models.Durable;
+using ServerlessAlarm.Application.Models.Durables;
 using ServerlessAlarm.Domain.Aggregators.Alarms;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,7 +30,7 @@ public class DurableFacade : IDurableFacade
             instanceId: alarm.Id.ToString(),
             input: new OrchestrateAlarmInput()
             {
-                AlarmId = alarm.Id,
+                AlarmId = alarm.Id
             });
     }
 
@@ -55,12 +55,19 @@ public class DurableFacade : IDurableFacade
             return false;
         }
         logger.LogInformation($"Alarm {alarm.Id}: Restarted");
-        await client.TerminateAsync(
-            instanceId: alarm.Id.ToString(),
-            reason: "Updated");
-        await client.RestartAsync(
-            instanceId: alarm.Id.ToString(),
-            restartWithNewInstanceId: false);
+
+        await Task.Run(() =>
+        {
+            return client.TerminateAsync(
+                instanceId: alarm.Id.ToString(),
+                reason: "Updated");
+        })
+        .ContinueWith(t =>
+        {
+            return client.RestartAsync(
+                instanceId: alarm.Id.ToString(),
+                restartWithNewInstanceId: false);
+        });
         return true;
     }
 
