@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions.Clients;
+namespace ServerlessAlarms.Application.Functions.Clients;
 
 using System;
 using System.Text.Json;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using ServerlessAlarm.Application.Exceptions;
+using ServerlessAlarms.Application.Exceptions;
 
 public class UpdateAlarmFunction
 {

@@ -1,6 +1,6 @@
-﻿namespace ServerlessAlarm.Infrastructure.Repositories;
+﻿namespace ServerlessAlarms.Infrastructure.Repositories;
 
-using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarms.Domain.Aggregators.Alarms;
 using System.Text.Json;
 
 public class AlarmRepository : LocalRepository<Alarm, Guid>, IAlarmRepository

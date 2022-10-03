@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions.Clients;
+namespace ServerlessAlarms.Application.Functions.Clients;
 
 using System;
 using System.Text.Json;

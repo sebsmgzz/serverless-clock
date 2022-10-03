@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions.Events;
+namespace ServerlessAlarms.Application.Functions.Events;
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,6 @@
-﻿namespace ServerlessAlarm.Domain.Aggregators;
+﻿namespace ServerlessAlarms.Domain.Aggregators;
 
-using ServerlessAlarm.Domain.Seedwork;
+using ServerlessAlarms.Domain.Seedwork;
 
 public class AlarmReaction : Enumeration<int, string>
 {

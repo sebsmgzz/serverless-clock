@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Domain.Seedwork;
+﻿namespace ServerlessAlarms.Domain.Seedwork;
 
 using System;
 using System.Collections.Generic;

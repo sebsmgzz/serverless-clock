@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Domain.Events;
+﻿namespace ServerlessAlarms.Domain.Events;
 
 using MediatR;
 

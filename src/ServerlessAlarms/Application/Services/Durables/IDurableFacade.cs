@@ -1,6 +1,6 @@
-﻿namespace ServerlessAlarm.Application.Services.Durables;
+﻿namespace ServerlessAlarms.Application.Services.Durables;
 
-using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarms.Domain.Aggregators.Alarms;
 using System.Threading.Tasks;
 
 public interface IDurableFacade

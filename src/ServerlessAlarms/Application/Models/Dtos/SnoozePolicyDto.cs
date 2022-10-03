@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Models.Dtos;
+﻿namespace ServerlessAlarms.Application.Models.Dtos;
 
 using Domain.Aggregators.Alarms;
 using System;

@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Functions.Clients;
+﻿namespace ServerlessAlarms.Application.Functions.Clients;
 
 using System;
 using System.Threading.Tasks;
@@ -10,8 +10,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Application.Models.Dtos;
 using MediatR;
-using ServerlessAlarm.Application.Exceptions;
-using ServerlessAlarm.Application.Services.Queries;
+using ServerlessAlarms.Application.Exceptions;
+using ServerlessAlarms.Application.Services.Queries;
 
 public class ReadAlarmFunction
 {

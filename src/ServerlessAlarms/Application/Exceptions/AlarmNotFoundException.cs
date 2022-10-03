@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Exceptions;
+﻿namespace ServerlessAlarms.Application.Exceptions;
 
 using System;
 

@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Domain.Aggregators.Alarms;
+﻿namespace ServerlessAlarms.Domain.Aggregators.Alarms;
 
 using Domain.Seedwork;
 using System;

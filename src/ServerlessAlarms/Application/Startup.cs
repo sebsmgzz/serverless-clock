@@ -1,7 +1,7 @@
 ﻿
 [assembly: Microsoft.Azure.Functions.Extensions.DependencyInjection
-    .FunctionsStartup(typeof(ServerlessAlarm.Application.Startup))]
-namespace ServerlessAlarm.Application;
+    .FunctionsStartup(typeof(ServerlessAlarms.Application.Startup))]
+namespace ServerlessAlarms.Application;
 
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +9,7 @@ using Domain.Aggregators.Alarms;
 using Infrastructure.Repositories;
 using MediatR;
 using System.Reflection;
-using ServerlessAlarm.Application.Services.Durables;
+using ServerlessAlarms.Application.Services.Durables;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
 using Microsoft.Extensions.Configuration;

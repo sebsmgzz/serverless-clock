@@ -1,6 +1,6 @@
-﻿namespace ServerlessAlarm.Infrastructure.Repositories;
+﻿namespace ServerlessAlarms.Infrastructure.Repositories;
 
-using ServerlessAlarm.Domain.Seedwork;
+using ServerlessAlarms.Domain.Seedwork;
 using System.Text;
 
 public abstract class LocalRepository<TEntity, TId> 
@@ -11,7 +11,7 @@ public abstract class LocalRepository<TEntity, TId>
     protected string GetRepoDirectory()
     {
         var tempDirPath = Path.GetTempPath();
-        var project = nameof(ServerlessAlarm);
+        var project = nameof(ServerlessAlarms);
         var repoName = GetType().Name;
         return Path.Join(tempDirPath, project, repoName);
     }

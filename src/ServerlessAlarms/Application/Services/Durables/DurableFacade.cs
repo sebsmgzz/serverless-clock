@@ -1,10 +1,10 @@
-﻿namespace ServerlessAlarm.Application.Services.Durables;
+﻿namespace ServerlessAlarms.Application.Services.Durables;
 
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using ServerlessAlarm.Application.Functions.Durable;
-using ServerlessAlarm.Application.Models.Durables;
-using ServerlessAlarm.Domain.Aggregators.Alarms;
+using ServerlessAlarms.Application.Functions.Durable;
+using ServerlessAlarms.Application.Models.Durables;
+using ServerlessAlarms.Domain.Aggregators.Alarms;
 using System.Linq;
 using System.Threading.Tasks;
 

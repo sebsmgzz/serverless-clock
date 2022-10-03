@@ -1,7 +1,7 @@
-﻿namespace ServerlessAlarm.Application.Services.EventHandlers;
+﻿namespace ServerlessAlarms.Application.Services.EventHandlers;
 
 using MediatR;
-using ServerlessAlarm.Domain.Events;
+using ServerlessAlarms.Domain.Events;
 using System.Threading;
 using System.Threading.Tasks;
 

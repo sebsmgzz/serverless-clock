@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Domain.Seedwork;
+﻿namespace ServerlessAlarms.Domain.Seedwork;
 
 public interface IAggregator
 {

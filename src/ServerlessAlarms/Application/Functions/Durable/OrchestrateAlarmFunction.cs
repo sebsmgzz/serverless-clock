@@ -1,4 +1,4 @@
-namespace ServerlessAlarm.Application.Functions.Durable;
+namespace ServerlessAlarms.Application.Functions.Durable;
 
 using System;
 using System.Threading;
@@ -10,10 +10,9 @@ using Domain.Aggregators.Alarms;
 using Application.Models.Durables;
 using NCrontab;
 using MediatR;
-using ServerlessAlarm.Domain.Events;
+using ServerlessAlarms.Domain.Events;
 using System.Collections.Generic;
-using System.Security.Claims;
-using ServerlessAlarm.Application.Exceptions;
+using ServerlessAlarms.Application.Exceptions;
 
 public class OrchestrateAlarmFunction
 {

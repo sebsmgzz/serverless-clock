@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Functions.Events;
+﻿namespace ServerlessAlarms.Application.Functions.Events;
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using MediatR;
 using Application.Services.Commands;
-using ServerlessAlarm.Application.Models.Dtos;
+using ServerlessAlarms.Application.Models.Dtos;
 using System.Text.Json;
 
 public class DismissAlarmFunction

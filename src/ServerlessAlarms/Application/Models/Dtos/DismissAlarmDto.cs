@@ -1,4 +1,4 @@
-﻿namespace ServerlessAlarm.Application.Models.Dtos;
+﻿namespace ServerlessAlarms.Application.Models.Dtos;
 
 using System;
 using System.Text.Json.Serialization;
