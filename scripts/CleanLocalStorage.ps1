@@ -15,8 +15,8 @@ $queuesNames = @(
     "testhubname-workitems")
 
 $tablesNames = @(
-    "testhubnameHistory",
-    "testhubnameInstances"
+    "TestHubNameHistory",
+    "TestHubNameInstances"
 );
 
 # Remove containers

@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "ServerlessTimers": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7272"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 34499,
+      "useSSL": false
+    }
+  }
+}
